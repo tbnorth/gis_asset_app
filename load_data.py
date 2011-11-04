@@ -9,6 +9,7 @@ from datetime import datetime
 DIR='/home/tbrown/Desktop/Proj/BirdAtlas/'
 DIR='/home/tbrown/n/proj/'
 DIR='/home/tbrown/s/arc1/hdrive/'
+DIR='/home/tbrown/s/aphid/jdrive/'
 
 def cull_dupes():
     """find repeated path_txt values and delete the corresponding
@@ -44,9 +45,6 @@ def main():
         if extant.exists():
             print name, 'already'
             continue
-            
-        print i['path']
-        raise Exception('all done')
         
         table_info = gispider.OgrFinder.get_table_info(i['path'])
     

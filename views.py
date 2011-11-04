@@ -4,15 +4,16 @@ from django.http import HttpResponse, HttpResponseForbidden, HttpResponseRedirec
 from django.shortcuts import render_to_response
 from django.core.urlresolvers import reverse
 from django import forms
+from django.db.models import Q
 import json
 
 from models import *
 
-format_list = [('', '----')]
+format_list = [('', '(all)')]
 format_list.extend([(i[0],i[0]) 
     for i in Format.objects.values_list('name')])
 
-geom_type_list = [('', '----')]
+geom_type_list = [('', '(all)')]
 geom_type_list.extend([(i[0],i[0]) 
     for i in Geom_type.objects.values_list('name')])
 
@@ -20,20 +21,31 @@ class SearchForm(forms.Form):
     """Options for query viewing"""
     
     formats = forms.MultipleChoiceField(required=False, 
-        choices=format_list)
+        choices=format_list,
+        help_text = '(ignored for now)')
         
     geom_types = forms.MultipleChoiceField(required=False, 
-        choices=geom_type_list)
+        choices=geom_type_list,
+        help_text = '(ignored for now)')
         
     asset_name = forms.CharField(required=False,
+        help_text = 'Comma sep. dataset filenames without extension, select records matching <strong>any</strong> of these',
         widget = forms.TextInput(attrs={'class':'asset_name', 'size': 80}))
         
     attr_name = forms.CharField(required=False,
-        widget = forms.TextInput(attrs={'class':'attr_name', 'size': 80}))
+        help_text = 'Comma sep. attrib. names, select records containing <strong>any</strong> of these',
+        widget=forms.TextInput(attrs={'class':'attr_name', 'size': 80}))
         
     path_txt = forms.CharField(required=False,
+        help_text = 'Comma sep. path fragments, select records containing <strong>any</strong> of these - e.g. "2011", or "2011/res"',
         widget = forms.TextInput(attrs={'class':'path_txt', 'size': 80}))
 
+    search_within_selected = forms.BooleanField(required=False,
+        help_text = 'Check to search withing selected - search previous conditions <strong>AND</strong> these conditions')      
+    
+    sort_by = forms.ChoiceField(required=True, initial='modified',
+        help_text = 'Show results (when &lt;= 100) by date/path',
+        choices=(('-modified','date'), ('path__path_txt','path')))
 def search(request):
     
     total_assets = Asset.objects.count()
@@ -48,15 +60,46 @@ def search(request):
         
             selection = Asset.objects.all()
             d = form.cleaned_data
+            
             if d['attr_name']:
+                q = Q()
                 for i in d['attr_name'].split(','):
-                    selection = selection.filter(attribute__name=i.strip())
-                    
-            selected_count = selection.count()
+                    q = q | Q(attribute__name=i.strip())
+                
+                selection = selection.filter(q)
+                
+            if d['asset_name']:
+                q = Q()
+                for i in d['asset_name'].split(','):
+                    q = q | Q(name=i.strip())
+                
+                selection = selection.filter(q)
+            
+            if d['path_txt']:
+                q = Q()
+                for i in d['path_txt'].split(','):
+                    q = q | Q(path__path_txt__icontains=i.strip())
+                
+                selection = selection.filter(q)
+            
+            selection = selection.distinct()
+            
+            prev_selection = request.session.get('selected', [])
+            
+            request.session['selected'] = [i[0] 
+                for i in selection.values_list('asset')
+                if not prev_selection or not d['search_within_selected'] or
+                       i[0] in prev_selection]
+                
+            selected_count = len(request.session['selected'])
             
             if selected_count < 101:
-                selected = [[i[0], translate_path(i[1]), i[1]]
-                    for i in selection.values_list('pk', 'path__path_txt')]
+                selected = [[i[0], translate_path(i[1]), i[1], i[2]]
+                    for i in selection.order_by(d['sort_by']).values_list(
+                        'pk', 'path__path_txt', 'modified')
+                    if not prev_selection or not d['search_within_selected'] or
+                       i[0] in prev_selection]
+                        
     else:
         
         form = SearchForm()

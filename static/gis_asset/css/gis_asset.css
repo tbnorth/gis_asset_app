@@ -2,5 +2,11 @@
 a { text-decoration: none; }
 a:hover { color: red; }
 .titled { cursor: pointer; }
-.left_head th { text-align: right; color: #555; 
+.left_head th { text-align: right; color: #555; vertical-align: top;
     font-weight: normal; font-style: italic; padding-right: 1ex; }
+a img { border: none; }
+.asset_modified { color: #444; background-color: #ffa; 
+    font-size: 65%; }
+form p { margin: 0; margin-top: 0.5ex; }
+
+.helptext { display: block; font-size:75%; color: brown; }
