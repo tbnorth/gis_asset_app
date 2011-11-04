@@ -15,6 +15,7 @@ admin.site.register(Path)
 admin.site.register(Attribute)
 admin.site.register(Format)
 admin.site.register(Geom_type)
+admin.site.register(Drive)
 """
 
 import re
@@ -214,6 +215,40 @@ Geom_type.dml_attr = {'dj_m2m_target': 'geom_type asset False'}
 
 dml_dj_set_attr(Geom_type, "name", {'dj_description': 'name'})
 dml_dj_set_attr(Geom_type, "geom_type", {'dj_description': 'geometry type'})
+
+class Drive (models.Model):  # AUTOMATICALLY GENERATED
+    """NO COMMENT SUPPLIED
+    """
+
+    class Meta:
+        pass
+        db_table = "drive"
+
+    def __unicode__(self):
+        return "%s: scanned %s //%s/%s" % (self.letter, self.last_scanned or 'never', self.machine, self.share)
+
+    drive = models.AutoField(primary_key=True)
+    # drive
+    letter = models.CharField(max_length=4096,)
+    # drive letter
+    machine = models.CharField(max_length=4096,)
+    # mount point
+    share = models.CharField(max_length=4096,)
+    # share name
+    last_scanned = models.DateField(blank=True, null=True)
+    # last scan date
+    user = models.CharField(max_length=4096,blank=True)
+    # password:user
+
+
+Drive.dml_attr = {'dj_name': '"%s: scanned %s //%s/%s" % (self.letter, self.last_scanned or \'never\', self.machine, self.share)'}
+
+dml_dj_set_attr(Drive, "last_scanned", {'dj_description': 'last scan date'})
+dml_dj_set_attr(Drive, "share", {'dj_description': 'share name'})
+dml_dj_set_attr(Drive, "drive", {'dj_description': 'drive'})
+dml_dj_set_attr(Drive, "machine", {'dj_description': 'mount point'})
+dml_dj_set_attr(Drive, "user", {'dj_description': 'password:user'})
+dml_dj_set_attr(Drive, "letter", {'dj_description': 'drive letter'})
 
 # bounds.asset -> asset.asset
 # path.asset -> asset.asset

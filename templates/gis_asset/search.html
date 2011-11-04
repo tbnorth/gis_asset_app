@@ -2,11 +2,13 @@
 
 {% block content %}
 
-  <p>{{total_assets}} assets, {{selected_count}} selected.</p>
+  <p>{{total_assets}} assets, {{selected_count}} selected,
+  from <a href="{% url gis_asset.views.drives %}">these drives</a>.</p>
   <form action='{% url gis_asset.views.search %}' method='post'>
   {% csrf_token %}
-  {{form.as_p}}
+  <table class='left_head'>{{form.as_table}}</table>
   <input type='submit'/>
+  <input type='reset'/>
   <button type='button' id='help_toggle'>Toggle help</button>
   </form>
   

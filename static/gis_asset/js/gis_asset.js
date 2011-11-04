@@ -21,7 +21,9 @@ function init() {
         var name = autos[i];
         var options = {
             serviceUrl: GIS_ASSET_URL+'/autocomplete?context='+name,
-            delimiter: ','
+            delimiter: ',',
+            minChars: 2,
+            deferRequestBy: 200 //miliseconds
         }
         if (name == 'path_txt') {
             options.serviceUrl = (
@@ -31,7 +33,10 @@ function init() {
         jQ('.'+name).autocomplete(options)
     }
     
+    jQ('#id_min_date').datepicker();
+    jQ('#id_max_date').datepicker();
     jQ('#dialog').hide();
+    jQ('.helptext').hide();
     jQ('a.asset_info').click(show_info);
     
     jQ('#help_toggle').click(function(){

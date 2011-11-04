@@ -40,6 +40,18 @@ class SearchForm(forms.Form):
         help_text = 'Comma sep. path fragments, select records containing <strong>any</strong> of these - e.g. "2011", or "2011/res"',
         widget = forms.TextInput(attrs={'class':'path_txt', 'size': 80}))
 
+    min_records = forms.IntegerField(required=False,
+        help_text='Show only datasets with at least this many records')
+        
+    max_records = forms.IntegerField(required=False,
+        help_text="Don't show datasets with more than this many records")
+
+    min_date = forms.DateField(required=False,
+        help_text='Show only datasets modified on or after this date')
+        
+    max_date = forms.DateField(required=False,
+        help_text='Show only datasets modified on or before this date')
+
     search_within_selected = forms.BooleanField(required=False,
         help_text = 'Check to search withing selected - search previous conditions <strong>AND</strong> these conditions')      
     
@@ -81,7 +93,16 @@ def search(request):
                     q = q | Q(path__path_txt__icontains=i.strip())
                 
                 selection = selection.filter(q)
-            
+                
+            if d['min_records']:
+                selection = selection.filter(records__gte=d['min_records'])
+            if d['max_records']:
+                selection = selection.filter(records__lte=d['max_records'])
+            if d['min_date']:
+                selection = selection.filter(modified__gte=d['min_date'])
+            if d['max_date']:
+                selection = selection.filter(modified__lte=d['max_date'])
+
             selection = selection.distinct()
             
             prev_selection = request.session.get('selected', [])
@@ -138,6 +159,11 @@ def asset(request, pk):
         RequestContext(request),
     )
 
+def drives(request):
+    
+    return HttpResponse('\n'.join([str(i) 
+        for i in Drive.objects.order_by('letter', 'machine', 'share')]),
+        mimetype="text/plain")
 def autocomplete(request):
     
     context = request.REQUEST['context']
