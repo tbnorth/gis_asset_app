@@ -1,0 +1,6 @@
+* { font-family: monospace; }
+a { text-decoration: none; }
+a:hover { color: red; }
+.titled { cursor: pointer; }
+.left_head th { text-align: right; color: #555; 
+    font-weight: normal; font-style: italic; padding-right: 1ex; }
