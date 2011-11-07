@@ -22,11 +22,13 @@ class SearchForm(forms.Form):
     
     formats = forms.MultipleChoiceField(required=False, 
         choices=format_list,
-        help_text = '(ignored for now)')
+        help_text = "Show datasets in <strong>any</strong> of these formats," +
+            " use '(all)' to clear selection.  'Shapefile' used for both shapefiles and .dbfs, use geom_types=none to isolate plain .dbfs")
         
     geom_types = forms.MultipleChoiceField(required=False, 
         choices=geom_type_list,
-        help_text = '(ignored for now)')
+        help_text = "Show datasets with <strong>any</strong> of these geomtry" +
+            " types, use '(all)' to clear selection")
         
     asset_name = forms.CharField(required=False,
         help_text = 'Comma sep. dataset filenames without extension, select records matching <strong>any</strong> of these',
