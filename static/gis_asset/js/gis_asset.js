@@ -4,17 +4,7 @@ if (typeof(jQ) == 'undefined') {
     
 }
 jQ(init);
-
-// guard to prevent re-running init() when #dialog loads .../asset page
-/* global */ GIS_ASSET_INIT = false;
-
 function init() {
-
-    if (GIS_ASSET_INIT) {
-        return;
-    }
-
-    /* global */ GIS_ASSET_INIT = true;
 
     var autos = ['attr_name', 'asset_name', 'path_txt'];
     for (var i in autos) {

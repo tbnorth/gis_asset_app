@@ -71,7 +71,12 @@ def search(request):
         if form.is_valid():
         
             selection = Asset.objects.all()
+            
             d = form.cleaned_data
+            
+            if d['search_within_selected'] and request.session.get('selected', []):
+                selection = selection.filter(asset__in=request.session.get(
+                    'selected', []))
             
             if d['attr_name']:
                 q = Q()
@@ -102,7 +107,25 @@ def search(request):
                 selection = selection.filter(modified__gte=d['min_date'])
             if d['max_date']:
                 selection = selection.filter(modified__lte=d['max_date'])
-
+                
+            if d['formats']:
+                q = Q()
+                for f in d['formats']:
+                    if not f:  # "(all)" is selected
+                        q = Q()
+                        break
+                    q = q | Q(format__name=f)
+                selection = selection.filter(q)
+                
+            if d['geom_types']:
+                q = Q()
+                for f in d['geom_types']:
+                    if not f:  # "(all)" is selected
+                        q = Q()
+                        break
+                    q = q | Q(geom_type__name=f)
+                selection = selection.filter(q)
+                
             selection = selection.distinct()
             
             prev_selection = request.session.get('selected', [])
@@ -139,13 +162,11 @@ def translate_path(path):
     
     path = path.strip('/').split('/')
     
-    if path[0] == 'nrgisl':
-        path[0] = 'file:///N:'
-    else:
-        path.pop(0)
-        path[0] = 'file:///%s:' % path[0][0].upper()
+    path[0] += '.nrri.umn.edu'
+    path.pop(0)  # discard machine
+    path[0] = 'file:///%s:' % path[0][0].upper()  # assume drive
         
-    return '/'.join(path[:-1])
+    return '/'.join(path[:-1])  # drop last to open directory
 def asset(request, pk):
     
     asset = Asset.objects.get(pk=pk)
@@ -153,7 +174,8 @@ def asset(request, pk):
     
 
     return render_to_response(
-        "gis_asset/asset.html",
+        "gis_asset/asset_core.html" 
+        if request.is_ajax() else "gis_asset/asset.html",
         {   'asset': asset,
         },
         RequestContext(request),
@@ -177,11 +199,12 @@ def autocomplete(request):
     }[context]
     
     if all:
-        suggestions = model.objects.filter(**{field+'__icontains': query})
+        suggestions = model.objects.filter(**{field+'__icontains': query}).distinct()[:250]
     else:
-        suggestions = model.objects.filter(**{field+'__istartswith': query})
-    suggestions = [i[0] 
-        for i in suggestions.values_list(field).order_by(field).distinct()]
+        suggestions = model.objects.filter(**{field+'__istartswith': query}).distinct()[:250]
+        
+    suggestions = [i[0] for i in suggestions.values_list(field)]
+    suggestions.sort()  # django can't sort *and* slice
 
     return HttpResponse(
         json.dumps({

@@ -2,26 +2,6 @@
 
 {% block content %}
 
-  <h1>{{asset.name}}</h1>
-  
-  <table class='left_head'>
-  <tr><th title='(Bands for rasters)' class='titled'>
-  Records:</th><td>{{asset.records}}</td></tr>
-  <tr><th>Modified:</th><td>{{asset.modified}}</td></tr>
-  {% for i in asset.format.all %}
-  <tr><th>Format:</th><td>{{i.name}}</td></tr>
-  {% endfor %}
-  {% for i in asset.geom_type.all %}
-  <tr><th>Geom. type:</th><td>{{i.name}}</td></tr>
-  {% endfor %}
-  {% for i in asset.path_set.all %}
-  <tr><th>Path:</th><td>{{i.path_txt}}</td></tr>
-  {% endfor %}
-  <tr><th>Attributes:</th><td>
-  {% for i in asset.attribute_set.all %}
-  <span class='titled' title='{{i.attr_type.name}}'>{{i.name}}</span>
-  {% endfor %}
-  </td></tr>
-  </table>
+  {% include 'gis_asset/asset_core.html' %}
   
 {% endblock %}
