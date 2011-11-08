@@ -135,6 +135,7 @@ def main():
             print asset.name, 'created'
             
         drive.last_scanned = date.today()
+        drive.save()
             
     finally:
         unmount_drive(drive)

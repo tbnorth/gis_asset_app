@@ -5,7 +5,7 @@ from django.shortcuts import render_to_response
 from django.core.urlresolvers import reverse
 from django import forms
 from django.db.models import Q
-from django.http import Http403
+from django.http import Http404
 
 import json
 
@@ -68,7 +68,7 @@ class SearchForm(forms.Form):
 def check_origin(request):
     
     if not '131.212.123' in request.META.get('REMOTE_ADDR', ''):
-        raise Http403
+        raise Http404
 def search(request):
     
     check_origin(request)
@@ -104,7 +104,7 @@ def search(request):
                     q = q | Q(attribute__name=i.strip())
                 
                 selection = selection.filter(q)
-                filters.add("Has an attribute in '%s'"%d['attr_name'])
+                filters.add("Has an attribute %s"%' or '.join(d['attr_name'].split(',')))
                 
             if d['asset_name']:
                 q = Q()
@@ -112,7 +112,7 @@ def search(request):
                     q = q | Q(name=i.strip())
                 
                 selection = selection.filter(q)
-                filters.add("Dataset name in '%s'"%d['asset_name'])
+                filters.add("Dataset name in %s"%' or '.join(d['asset_name'].split(',')))
             
             if d['path_txt']:
                 q = Q()
@@ -120,7 +120,7 @@ def search(request):
                     q = q | Q(path__path_txt__icontains=i.strip())
                 
                 selection = selection.filter(q)
-                filters.add("Path contains one of '%s'"%d['path_txt'])
+                filters.add("Path contains %s"%' or '.join(d['path_txt'].split(',')))
                 
             if d['min_records']:
                 selection = selection.filter(records__gte=d['min_records'])
@@ -143,7 +143,7 @@ def search(request):
                         break
                     q = q | Q(format__name=f)
                 selection = selection.filter(q)
-                filters.add("Format in %s"%', '.join(d['formats']))
+                filters.add("Format is %s"%' or '.join(d['formats']))
                 
             if d['geom_types']:
                 q = Q()
@@ -153,7 +153,7 @@ def search(request):
                         break
                     q = q | Q(geom_type__name=f)
                 selection = selection.filter(q)
-                filters.add("Geometry type in %s"%', '.join(d['geom_types']))
+                filters.add("Geometry type is %s"%' or '.join(d['geom_types']))
                 
             selection = selection.distinct()
             
@@ -242,9 +242,9 @@ def autocomplete(request):
         suggestions = suggestions.filter(
             asset__in=request.session.get('selected', []))
             
-    suggestions = suggestions.distinct()[:250]
+    suggestions = suggestions.distinct()
         
-    suggestions = [i[0] for i in suggestions.values_list(field)]
+    suggestions = [i[0] for i in suggestions.values_list(field)[:250]]
     suggestions.sort()  # django can't sort *and* slice
 
     return HttpResponse(

@@ -10,12 +10,13 @@ function init() {
     for (var i in autos) {
         var name = autos[i];
         var options = {
-            serviceUrl: GIS_ASSET_URL+'/autocomplete?context='+name,
+            serviceUrl: GIS_ASSET_URL+'/autocomplete?all=y&context='+name,
             delimiter: ',',
             minChars: 2,
             deferRequestBy: 200 //miliseconds
         }
-        if (name == 'path_txt') {
+
+        if (name == 'path_txt') {  // if you only wanted all in this
             options.serviceUrl = (
                 GIS_ASSET_URL+'/autocomplete?all=y&context='+name);
         }
