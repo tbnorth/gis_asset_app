@@ -5,6 +5,8 @@ from django.shortcuts import render_to_response
 from django.core.urlresolvers import reverse
 from django import forms
 from django.db.models import Q
+from django.http import Http403
+
 import json
 
 from models import *
@@ -22,13 +24,16 @@ class SearchForm(forms.Form):
     
     formats = forms.MultipleChoiceField(required=False, 
         choices=format_list,
-        help_text = "Show datasets in <strong>any</strong> of these formats," +
-            " use '(all)' to clear selection.  'Shapefile' used for both shapefiles and .dbfs, use geom_types=none to isolate plain .dbfs")
+        help_text = """Show datasets in <strong>any</strong> of 
+            these formats, use '(all)' to clear selection,  
+            'esri shapefile' used for both shapefiles and .dbfs, 
+            use geom_types=none to isolate plain .dbfs""")
         
     geom_types = forms.MultipleChoiceField(required=False, 
         choices=geom_type_list,
-        help_text = "Show datasets with <strong>any</strong> of these geomtry" +
-            " types, use '(all)' to clear selection")
+        help_text = """Show datasets with <strong>any</strong> of
+            these geomtry types, use '(all)' to clear selection,
+            none indicates plain .dbf""")
         
     asset_name = forms.CharField(required=False,
         help_text = 'Comma sep. dataset filenames without extension, select records matching <strong>any</strong> of these',
@@ -60,7 +65,13 @@ class SearchForm(forms.Form):
     sort_by = forms.ChoiceField(required=True, initial='modified',
         help_text = 'Show results (when &lt;= 100) by date/path',
         choices=(('-modified','date'), ('path__path_txt','path')))
+def check_origin(request):
+    
+    if not '131.212.123' in request.META.get('REMOTE_ADDR', ''):
+        raise Http403
 def search(request):
+    
+    check_origin(request)
     
     total_assets = Asset.objects.count()
     selected_count = 0
@@ -71,14 +82,21 @@ def search(request):
         form =  SearchForm(request.POST)
         
         if form.is_valid():
-        
-            selection = Asset.objects.all()
             
             d = form.cleaned_data
             
-            if d['search_within_selected'] and request.session.get('selected', []):
-                selection = selection.filter(asset__in=request.session.get(
-                    'selected', []))
+            filters = request.session['filters']
+            request.session.modified = True
+            if not d['search_within_selected']:
+                filters.clear()
+        
+            selection = Asset.objects.all()
+            
+            # *partial* *alternative* to selection filtering on session below
+            # if (d['search_within_selected'] and 
+            #     request.session.get('selected', [])):
+            #     selection = selection.filter(asset__in=request.session.get(
+            #         'selected', []))
             
             if d['attr_name']:
                 q = Q()
@@ -86,6 +104,7 @@ def search(request):
                     q = q | Q(attribute__name=i.strip())
                 
                 selection = selection.filter(q)
+                filters.add("Has an attribute in '%s'"%d['attr_name'])
                 
             if d['asset_name']:
                 q = Q()
@@ -93,6 +112,7 @@ def search(request):
                     q = q | Q(name=i.strip())
                 
                 selection = selection.filter(q)
+                filters.add("Dataset name in '%s'"%d['asset_name'])
             
             if d['path_txt']:
                 q = Q()
@@ -100,15 +120,20 @@ def search(request):
                     q = q | Q(path__path_txt__icontains=i.strip())
                 
                 selection = selection.filter(q)
+                filters.add("Path contains one of '%s'"%d['path_txt'])
                 
             if d['min_records']:
                 selection = selection.filter(records__gte=d['min_records'])
+                filters.add("At least %s records"%d['min_records'])
             if d['max_records']:
                 selection = selection.filter(records__lte=d['max_records'])
+                filters.add("At most %s records"%d['max_records'])
             if d['min_date']:
                 selection = selection.filter(modified__gte=d['min_date'])
+                filters.add("Modified on or after %s"%d['min_date'])
             if d['max_date']:
                 selection = selection.filter(modified__lte=d['max_date'])
+                filters.add("Modified on or before %s"%d['max_date'])
                 
             if d['formats']:
                 q = Q()
@@ -118,6 +143,7 @@ def search(request):
                         break
                     q = q | Q(format__name=f)
                 selection = selection.filter(q)
+                filters.add("Format in %s"%', '.join(d['formats']))
                 
             if d['geom_types']:
                 q = Q()
@@ -127,6 +153,7 @@ def search(request):
                         break
                     q = q | Q(geom_type__name=f)
                 selection = selection.filter(q)
+                filters.add("Geometry type in %s"%', '.join(d['geom_types']))
                 
             selection = selection.distinct()
             
@@ -135,7 +162,7 @@ def search(request):
             request.session['selected'] = [i[0] 
                 for i in selection.values_list('asset')
                 if not prev_selection or not d['search_within_selected'] or
-                       i[0] in prev_selection]
+                    i[0] in prev_selection]
                 
             selected_count = len(request.session['selected'])
             
@@ -149,6 +176,7 @@ def search(request):
     else:
         
         form = SearchForm()
+        request.session['filters'] = set()
     
     return render_to_response(
         "gis_asset/search.html",
@@ -156,6 +184,7 @@ def search(request):
             'selected_count': selected_count,
             'form': form,
             'selected': selected,
+            'filters': request.session['filters'],
         },
         RequestContext(request),
     )
@@ -171,9 +200,9 @@ def translate_path(path):
     return '/'.join(path[:-1])  # drop last to open directory
 def asset(request, pk):
     
+    check_origin(request)
+    
     asset = Asset.objects.get(pk=pk)
-    
-    
 
     return render_to_response(
         "gis_asset/asset_core.html" 
@@ -185,10 +214,14 @@ def asset(request, pk):
 
 def drives(request):
     
+    check_origin(request)
+    
     return HttpResponse('\n'.join([str(i) 
         for i in Drive.objects.order_by('letter', 'machine', 'share')]),
         mimetype="text/plain")
 def autocomplete(request):
+    
+    check_origin(request)
     
     context = request.REQUEST['context']
     query = request.REQUEST['query']
@@ -201,9 +234,15 @@ def autocomplete(request):
     }[context]
     
     if all:
-        suggestions = model.objects.filter(**{field+'__icontains': query}).distinct()[:250]
+        suggestions = model.objects.filter(**{field+'__icontains': query})
     else:
-        suggestions = model.objects.filter(**{field+'__istartswith': query}).distinct()[:250]
+        suggestions = model.objects.filter(**{field+'__istartswith': query})
+        
+    if request.session.get('selected', []):
+        suggestions = suggestions.filter(
+            asset__in=request.session.get('selected', []))
+            
+    suggestions = suggestions.distinct()[:250]
         
     suggestions = [i[0] for i in suggestions.values_list(field)]
     suggestions.sort()  # django can't sort *and* slice

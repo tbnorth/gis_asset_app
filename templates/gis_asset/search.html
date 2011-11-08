@@ -4,6 +4,33 @@
 
   <p>{{total_assets}} assets, {{selected_count}} selected,
   from <a href="{% url gis_asset.views.drives %}">these drives</a>.</p>
+  
+  {% if filters %}<p>Filtered by<ul>
+  {% for i in filters %}<li>{{i}}</li>{% endfor %}
+  </ul></p>{% endif %}
+  
+  <div class='helptext'><p>
+  For each search, selections made <strong>within</strong>
+  the boxes below are <strong>ORed</strong>
+  together, so a search for attribute name "uniq_id3, uniq_id" will find
+  datasets with <strong>either</strong> attribute.  
+  </p><p>
+  For each search,
+  the non-empty boxes below are <strong>ANDed</strong> together, so
+  a search for attribute name "uniq_id3, uniq_id" and path txt "2011" will
+  find datasets which all have "2011" in their path, <strong>AND</strong>
+  have either "uniq_id3" or "uniq_id" attributes.
+  </p><p>
+  To search for datasets which have attribute name
+  "uniq_id3" <strong>AND</strong> attribute name "sumrel" (same box below),
+  search for "uniq_id3" first, then check the Search within
+  selected option and search for "sumrel".
+  </p><p>
+  Autocomplete fields are limited to previously selected datasets (if any,
+  see top of page), and never show more than 250 choices.
+  </p>
+  </div>
+  
   <form action='{% url gis_asset.views.search %}' method='post'>
   {% csrf_token %}
   <table class='left_head'>{{form.as_table}}</table>

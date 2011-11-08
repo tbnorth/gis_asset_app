@@ -9,4 +9,5 @@ a img { border: none; }
     font-size: 65%; }
 form p { margin: 0; margin-top: 0.5ex; }
 
-.helptext { display: block; font-size:75%; color: brown; }
+.helptext { display: block; font-size:85%; color: brown; 
+    max-width: 800; }
