@@ -180,12 +180,11 @@ def search(request):
                 
             selected_count = len(request.session['selected'])
             
-            if selected_count < 101:
-                selected = [[i[0], translate_path(i[1]), i[1], i[2]]
-                    for i in selection.order_by(d['sort_by']).values_list(
-                        'pk', 'path__path_txt', 'modified')
-                    if not prev_selection or not d['search_within_selected'] or
-                       i[0] in prev_selection]
+            selected = [[i[0], translate_path(i[1]), i[1], i[2]]
+                for i in selection.order_by(d['sort_by']).values_list(
+                    'pk', 'path__path_txt', 'modified')[:200]
+                if not prev_selection or not d['search_within_selected'] or
+                   i[0] in prev_selection]
                         
     else:
         

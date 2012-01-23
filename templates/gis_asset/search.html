@@ -40,6 +40,9 @@
   <button type='button' id='help_toggle'>Toggle help</button>
   </form>
   
+  {% if selected_count > selected|length $}
+  <h2>Showing only first {{selected_count}} records</h2>
+  {% endif %}
   {% for i in selected %}
   <div><a class='asset_info' href='{% url gis_asset.views.asset i.0 %}'><img src='{{STATIC_URL}}gis_asset/img/info.gif' title='More information' alt='Information icon'/></a>
   <span class='asset_modified'>{{i.3|date:"d.M.y"}}</span>
