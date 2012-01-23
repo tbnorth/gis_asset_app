@@ -182,9 +182,9 @@ def search(request):
             
             selected = [[i[0], translate_path(i[1]), i[1], i[2]]
                 for i in selection.order_by(d['sort_by']).values_list(
-                    'pk', 'path__path_txt', 'modified')[:200]
+                    'pk', 'path__path_txt', 'modified')
                 if not prev_selection or not d['search_within_selected'] or
-                   i[0] in prev_selection]
+                   i[0] in prev_selection][:200]
                         
     else:
         
