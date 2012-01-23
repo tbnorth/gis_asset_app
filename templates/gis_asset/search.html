@@ -40,7 +40,7 @@
   <button type='button' id='help_toggle'>Toggle help</button>
   </form>
   
-  {% if selected_count > selected|length $}
+  {% if selected_count > selected|length %}
   <h2>Showing only first {{selected_count}} records</h2>
   {% endif %}
   {% for i in selected %}
