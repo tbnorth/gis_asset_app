@@ -60,7 +60,10 @@ class SearchForm(forms.Form):
         help_text='Show only datasets modified on or before this date')
 
     search_within_selected = forms.BooleanField(required=False,
-        help_text = 'Check to search withing selected - search previous conditions <strong>AND</strong> these conditions')      
+        help_text = 'Check to search within selected - search previous conditions <strong>AND</strong> these conditions')  
+            
+    use_regex = forms.BooleanField(required=False,
+        help_text = 'Interpret search strings and case insensitive regular expressions')      
     
     sort_by = forms.ChoiceField(required=True, initial='modified',
         help_text = 'Show results (when &lt;= 100) by date/path',
@@ -85,6 +88,8 @@ def search(request):
             
             d = form.cleaned_data
             
+            regex = d['use_regex']
+            
             filters = request.session['filters']
             request.session.modified = True
             if not d['search_within_selected']:
@@ -101,7 +106,10 @@ def search(request):
             if d['attr_name']:
                 q = Q()
                 for i in d['attr_name'].split(','):
-                    q = q | Q(attribute__name=i.strip())
+                    if regex:
+                        q = q | Q(attribute__name__iregex=i.strip())
+                    else:
+                        q = q | Q(attribute__name=i.strip())
                 
                 selection = selection.filter(q)
                 filters.add("Has an attribute %s"%' or '.join(d['attr_name'].split(',')))
@@ -109,7 +117,10 @@ def search(request):
             if d['asset_name']:
                 q = Q()
                 for i in d['asset_name'].split(','):
-                    q = q | Q(name=i.strip())
+                    if regex:
+                        q = q | Q(name__iregex=i.strip())
+                    else:
+                        q = q | Q(name=i.strip())
                 
                 selection = selection.filter(q)
                 filters.add("Dataset name in %s"%' or '.join(d['asset_name'].split(',')))
@@ -117,7 +128,10 @@ def search(request):
             if d['path_txt']:
                 q = Q()
                 for i in d['path_txt'].split(','):
-                    q = q | Q(path__path_txt__icontains=i.strip())
+                    if regex:
+                        q = q | Q(path__path_txt__iregex=i.strip())
+                    else:
+                        q = q | Q(path__path_txt__icontains=i.strip())
                 
                 selection = selection.filter(q)
                 filters.add("Path contains %s"%' or '.join(d['path_txt'].split(',')))

@@ -37,7 +37,8 @@ def unmount_drive(drive):
     
     mp = mount_path(drive)
     
-    os.system('umount.cifs %s' % mp)
+    #X os.system('umount.cifs %s' % mp)
+    os.system('umount %s' % mp)
     
     if len(glob.glob(mp+'/*')) != 0:
         raise Exception("Mount point '%s' STILL has content"%mp)    
