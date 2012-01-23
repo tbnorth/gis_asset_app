@@ -171,7 +171,7 @@ def search(request):
                 
             selection = selection.distinct()
             
-            prev_selection = request.session.get('selected', [])
+            prev_selection = list( request.session.get('selected', []) )
             
             request.session['selected'] = [i[0] 
                 for i in selection.values_list('asset')
