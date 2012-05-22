@@ -76,7 +76,12 @@ def main():
     for i in Drive.objects.order_by('pk'):
         print "%2d: %s" % (i.pk, i)
     
-    pk = input("Which: ")
+    pk = raw_input("Which: ")
+    
+    for i in pk.split():
+        scan_drive(int(i))
+        
+def scan_drive(pk):
     
     drive = Drive.objects.get(pk=pk)
     
