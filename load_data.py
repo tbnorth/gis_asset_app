@@ -63,12 +63,14 @@ def mount_drive(drive):
     opt = 'user='+user
     if password is not None:
         opt += ',password='+password
+
+    cmd = 'mount.cifs //%s/%s %s -o %s' % (
+        host, drive.share, mp, opt)
     
-    os.system('mount.cifs //%s/%s %s -o %s' % (
-        host, drive.share, mp, opt))
+    os.system(cmd)
     
     if len(glob.glob(mp+'/*')) == 0:
-        raise Exception("Mount point '%s' has NO content"%mp)
+        raise Exception("Mount point '%s' has NO content\n(%s)"%(mp,cmd))
         
     return mp
 def main():
