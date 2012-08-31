@@ -1,7 +1,7 @@
 """Load data to gis_asset.models from gisspider"""
 
 import gispider
-from models import *
+from gis_asset.models import *
 
 import os
 import glob

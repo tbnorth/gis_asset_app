@@ -44,6 +44,14 @@ def dml_dj_uploader(path):
                 print  eval(path)
                 return eval(path)
         
+if 'md5_calc_targets' not in globals():
+    md5_calc_targets = []
+def md5_calc(sender, instance, *args, **kwargs):
+            if sender in md5_calc_targets:
+                DFile = instance.path
+                DFile.seek(0)
+                instance.md5 = md5.new(DFile.read()).hexdigest()
+        
 class Asset (models.Model):  # AUTOMATICALLY GENERATED
     """NO COMMENT SUPPLIED
     """
@@ -54,24 +62,24 @@ class Asset (models.Model):  # AUTOMATICALLY GENERATED
 
 
     asset = models.AutoField(primary_key=True)
-    name = models.CharField(max_length=4096,)
+    name = models.CharField(max_length=4096,help_text='name')
     # name
-    records = models.IntegerField()
+    records = models.IntegerField(help_text='records or bands')
     # records or bands
-    modified = models.DateTimeField()
+    modified = models.DateTimeField(help_text='time of last modification')
     # time of last modification
     format = models.ManyToManyField("Format")
     geom_type = models.ManyToManyField("Geom_type")
 
 
-Asset.dml_attr = {}
+Asset.dml_attr = {'schema_name': 'GIS Asset index database', 'dj_description': 'NO COMMENT SUPPLIED'}
 
-dml_dj_set_attr(Asset, "name", {'dj_description': 'name'})
-dml_dj_set_attr(Asset, "format", {'dj_m2m_target': 'format', 'dj_description': ''})
-dml_dj_set_attr(Asset, "modified", {'dj_description': 'time of last modification'})
-dml_dj_set_attr(Asset, "records", {'dj_description': 'records or bands'})
-dml_dj_set_attr(Asset, "asset", {'dj_description': ''})
-dml_dj_set_attr(Asset, "geom_type", {'dj_m2m_target': 'geom_type', 'dj_description': ''})
+dml_dj_set_attr(Asset, "name", {'units': '', 'dj_css_class': 'CharField', 'dj_description': 'name'})
+dml_dj_set_attr(Asset, "format", {'units': '', 'dj_m2m_target': 'format', 'dj_css_class': 'ManyToManyField', 'dj_description': ''})
+dml_dj_set_attr(Asset, "modified", {'units': '', 'dj_css_class': 'DateTimeField', 'dj_description': 'time of last modification'})
+dml_dj_set_attr(Asset, "records", {'units': '', 'dj_css_class': 'IntegerField', 'dj_description': 'records or bands'})
+dml_dj_set_attr(Asset, "asset", {'units': '', 'dj_css_class': 'AutoField', 'dj_description': ''})
+dml_dj_set_attr(Asset, "geom_type", {'units': '', 'dj_m2m_target': 'geom_type', 'dj_css_class': 'ManyToManyField', 'dj_description': ''})
 
 class Attr_type (models.Model):  # AUTOMATICALLY GENERATED
     """NO COMMENT SUPPLIED
@@ -84,14 +92,14 @@ class Attr_type (models.Model):  # AUTOMATICALLY GENERATED
 
     attr_type = models.AutoField(primary_key=True)
     # attribute type
-    name = models.CharField(max_length=4096,)
+    name = models.CharField(max_length=4096,help_text='name')
     # name
 
 
-Attr_type.dml_attr = {}
+Attr_type.dml_attr = {'schema_name': 'GIS Asset index database', 'dj_description': 'NO COMMENT SUPPLIED'}
 
-dml_dj_set_attr(Attr_type, "attr_type", {'dj_description': 'attribute type'})
-dml_dj_set_attr(Attr_type, "name", {'dj_description': 'name'})
+dml_dj_set_attr(Attr_type, "attr_type", {'units': '', 'dj_css_class': 'AutoField', 'dj_description': 'attribute type'})
+dml_dj_set_attr(Attr_type, "name", {'units': '', 'dj_css_class': 'CharField', 'dj_description': 'name'})
 
 class Bounds (models.Model):  # AUTOMATICALLY GENERATED
     """NO COMMENT SUPPLIED
@@ -104,29 +112,29 @@ class Bounds (models.Model):  # AUTOMATICALLY GENERATED
 
     bounds = models.AutoField(primary_key=True)
     # bounding box
-    asset = models.ForeignKey("Asset", db_column="asset", )
+    asset = models.ForeignKey("Asset", db_column="asset", help_text='asset')
     # asset
-    srid = models.IntegerField()
+    srid = models.IntegerField(help_text='Spatial Reference ID')
     # Spatial Reference ID
-    minx = models.FloatField()
+    minx = models.FloatField(help_text='minx')
     # minx
-    maxx = models.FloatField()
+    maxx = models.FloatField(help_text='maxx')
     # maxx
-    miny = models.FloatField()
+    miny = models.FloatField(help_text='miny')
     # miny
-    maxy = models.FloatField()
+    maxy = models.FloatField(help_text='maxy')
     # maxy
 
 
-Bounds.dml_attr = {}
+Bounds.dml_attr = {'schema_name': 'GIS Asset index database', 'dj_description': 'NO COMMENT SUPPLIED'}
 
-dml_dj_set_attr(Bounds, "maxx", {'dj_description': 'maxx'})
-dml_dj_set_attr(Bounds, "maxy", {'dj_description': 'maxy'})
-dml_dj_set_attr(Bounds, "bounds", {'dj_description': 'bounding box'})
-dml_dj_set_attr(Bounds, "minx", {'dj_description': 'minx'})
-dml_dj_set_attr(Bounds, "miny", {'dj_description': 'miny'})
-dml_dj_set_attr(Bounds, "asset", {'dj_description': 'asset'})
-dml_dj_set_attr(Bounds, "srid", {'dj_description': 'Spatial Reference ID'})
+dml_dj_set_attr(Bounds, "maxx", {'units': '', 'dj_css_class': 'FloatField', 'dj_description': 'maxx'})
+dml_dj_set_attr(Bounds, "maxy", {'units': '', 'dj_css_class': 'FloatField', 'dj_description': 'maxy'})
+dml_dj_set_attr(Bounds, "bounds", {'units': '', 'dj_css_class': 'AutoField', 'dj_description': 'bounding box'})
+dml_dj_set_attr(Bounds, "minx", {'units': '', 'dj_css_class': 'FloatField', 'dj_description': 'minx'})
+dml_dj_set_attr(Bounds, "miny", {'units': '', 'dj_css_class': 'FloatField', 'dj_description': 'miny'})
+dml_dj_set_attr(Bounds, "asset", {'units': '', 'dj_css_class': 'ForeignKey', 'dj_description': 'asset'})
+dml_dj_set_attr(Bounds, "srid", {'units': '', 'dj_css_class': 'IntegerField', 'dj_description': 'Spatial Reference ID'})
 
 class Path (models.Model):  # AUTOMATICALLY GENERATED
     """NO COMMENT SUPPLIED
@@ -139,17 +147,17 @@ class Path (models.Model):  # AUTOMATICALLY GENERATED
 
     path = models.AutoField(primary_key=True)
     # path
-    asset = models.ForeignKey("Asset", db_column="asset", )
+    asset = models.ForeignKey("Asset", db_column="asset", help_text='asset')
     # asset
-    path_txt = models.CharField(max_length=4096,)
+    path_txt = models.CharField(max_length=4096,help_text='path')
     # path
 
 
-Path.dml_attr = {}
+Path.dml_attr = {'schema_name': 'GIS Asset index database', 'dj_description': 'NO COMMENT SUPPLIED'}
 
-dml_dj_set_attr(Path, "path_txt", {'dj_description': 'path'})
-dml_dj_set_attr(Path, "path", {'dj_description': 'path'})
-dml_dj_set_attr(Path, "asset", {'dj_description': 'asset'})
+dml_dj_set_attr(Path, "path_txt", {'units': '', 'dj_css_class': 'CharField', 'dj_description': 'path'})
+dml_dj_set_attr(Path, "path", {'units': '', 'dj_css_class': 'AutoField', 'dj_description': 'path'})
+dml_dj_set_attr(Path, "asset", {'units': '', 'dj_css_class': 'ForeignKey', 'dj_description': 'asset'})
 
 class Attribute (models.Model):  # AUTOMATICALLY GENERATED
     """NO COMMENT SUPPLIED
@@ -162,19 +170,19 @@ class Attribute (models.Model):  # AUTOMATICALLY GENERATED
 
     attribute = models.AutoField(primary_key=True)
     # attribute (column) of an asset
-    asset = models.ForeignKey("Asset", db_column="asset", )
+    asset = models.ForeignKey("Asset", db_column="asset", help_text='asset')
     # asset
     attr_type = models.ForeignKey("Attr_type", db_column="attr_type", )
-    name = models.CharField(max_length=4096,)
+    name = models.CharField(max_length=4096,help_text='name of attribute')
     # name of attribute
 
 
-Attribute.dml_attr = {}
+Attribute.dml_attr = {'schema_name': 'GIS Asset index database', 'dj_description': 'NO COMMENT SUPPLIED'}
 
-dml_dj_set_attr(Attribute, "attribute", {'dj_description': 'attribute (column) of an asset'})
-dml_dj_set_attr(Attribute, "asset", {'dj_description': 'asset'})
-dml_dj_set_attr(Attribute, "name", {'dj_description': 'name of attribute'})
-dml_dj_set_attr(Attribute, "attr_type", {'dj_description': ''})
+dml_dj_set_attr(Attribute, "attribute", {'units': '', 'dj_css_class': 'AutoField', 'dj_description': 'attribute (column) of an asset'})
+dml_dj_set_attr(Attribute, "asset", {'units': '', 'dj_css_class': 'ForeignKey', 'dj_description': 'asset'})
+dml_dj_set_attr(Attribute, "name", {'units': '', 'dj_css_class': 'CharField', 'dj_description': 'name of attribute'})
+dml_dj_set_attr(Attribute, "attr_type", {'units': '', 'dj_css_class': 'ForeignKey', 'dj_description': ''})
 
 class Format (models.Model):  # AUTOMATICALLY GENERATED
     """NO COMMENT SUPPLIED
@@ -187,14 +195,14 @@ class Format (models.Model):  # AUTOMATICALLY GENERATED
 
     format = models.AutoField(primary_key=True)
     # format
-    name = models.CharField(max_length=4096,)
+    name = models.CharField(max_length=4096,help_text='name')
     # name
 
 
-Format.dml_attr = {'dj_m2m_target': 'format asset False'}
+Format.dml_attr = {'dj_m2m_target': 'format asset False', 'schema_name': 'GIS Asset index database', 'dj_description': 'NO COMMENT SUPPLIED'}
 
-dml_dj_set_attr(Format, "name", {'dj_description': 'name'})
-dml_dj_set_attr(Format, "format", {'dj_description': 'format'})
+dml_dj_set_attr(Format, "name", {'units': '', 'dj_css_class': 'CharField', 'dj_description': 'name'})
+dml_dj_set_attr(Format, "format", {'units': '', 'dj_css_class': 'AutoField', 'dj_description': 'format'})
 
 class Geom_type (models.Model):  # AUTOMATICALLY GENERATED
     """NO COMMENT SUPPLIED
@@ -207,14 +215,14 @@ class Geom_type (models.Model):  # AUTOMATICALLY GENERATED
 
     geom_type = models.AutoField(primary_key=True)
     # geometry type
-    name = models.CharField(max_length=4096,)
+    name = models.CharField(max_length=4096,help_text='name')
     # name
 
 
-Geom_type.dml_attr = {'dj_m2m_target': 'geom_type asset False'}
+Geom_type.dml_attr = {'dj_m2m_target': 'geom_type asset False', 'schema_name': 'GIS Asset index database', 'dj_description': 'NO COMMENT SUPPLIED'}
 
-dml_dj_set_attr(Geom_type, "name", {'dj_description': 'name'})
-dml_dj_set_attr(Geom_type, "geom_type", {'dj_description': 'geometry type'})
+dml_dj_set_attr(Geom_type, "name", {'units': '', 'dj_css_class': 'CharField', 'dj_description': 'name'})
+dml_dj_set_attr(Geom_type, "geom_type", {'units': '', 'dj_css_class': 'AutoField', 'dj_description': 'geometry type'})
 
 class Drive (models.Model):  # AUTOMATICALLY GENERATED
     """NO COMMENT SUPPLIED
@@ -229,26 +237,29 @@ class Drive (models.Model):  # AUTOMATICALLY GENERATED
 
     drive = models.AutoField(primary_key=True)
     # drive
-    letter = models.CharField(max_length=4096,)
+    letter = models.CharField(max_length=4096,help_text='drive letter')
     # drive letter
-    machine = models.CharField(max_length=4096,)
+    machine = models.CharField(max_length=4096,help_text='mount point')
     # mount point
-    share = models.CharField(max_length=4096,)
+    share = models.CharField(max_length=4096,help_text='share name')
     # share name
-    last_scanned = models.DateField(blank=True, null=True)
+    last_scanned = models.DateField(blank=True, null=True, help_text='last scan date')
     # last scan date
-    user = models.CharField(max_length=4096,blank=True)
+    user = models.CharField(max_length=4096,blank=True, help_text='password:user')
     # password:user
+    ip = models.CharField(max_length=4096,blank=True, help_text='IP to try if lookup fails')
+    # IP to try if lookup fails
 
 
-Drive.dml_attr = {'dj_name': '"%s: scanned %s //%s/%s" % (self.letter, self.last_scanned or \'never\', self.machine, self.share)'}
+Drive.dml_attr = {'dj_name': '"%s: scanned %s //%s/%s" % (self.letter, self.last_scanned or \'never\', self.machine, self.share)', 'schema_name': 'GIS Asset index database', 'dj_description': 'NO COMMENT SUPPLIED'}
 
-dml_dj_set_attr(Drive, "last_scanned", {'dj_description': 'last scan date'})
-dml_dj_set_attr(Drive, "share", {'dj_description': 'share name'})
-dml_dj_set_attr(Drive, "drive", {'dj_description': 'drive'})
-dml_dj_set_attr(Drive, "machine", {'dj_description': 'mount point'})
-dml_dj_set_attr(Drive, "user", {'dj_description': 'password:user'})
-dml_dj_set_attr(Drive, "letter", {'dj_description': 'drive letter'})
+dml_dj_set_attr(Drive, "last_scanned", {'units': '', 'dj_css_class': 'DateField', 'dj_description': 'last scan date'})
+dml_dj_set_attr(Drive, "ip", {'units': '', 'dj_css_class': 'CharField', 'dj_description': 'IP to try if lookup fails'})
+dml_dj_set_attr(Drive, "share", {'units': '', 'dj_css_class': 'CharField', 'dj_description': 'share name'})
+dml_dj_set_attr(Drive, "drive", {'units': '', 'dj_css_class': 'AutoField', 'dj_description': 'drive'})
+dml_dj_set_attr(Drive, "machine", {'units': '', 'dj_css_class': 'CharField', 'dj_description': 'mount point'})
+dml_dj_set_attr(Drive, "user", {'units': '', 'dj_css_class': 'CharField', 'dj_description': 'password:user'})
+dml_dj_set_attr(Drive, "letter", {'units': '', 'dj_css_class': 'CharField', 'dj_description': 'drive letter'})
 
 # bounds.asset -> asset.asset
 # path.asset -> asset.asset
