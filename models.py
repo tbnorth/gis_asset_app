@@ -45,12 +45,13 @@ def dml_dj_uploader(path):
                 return eval(path)
         
 if 'md5_calc_targets' not in globals():
-    md5_calc_targets = []
-def md5_calc(sender, instance, *args, **kwargs):
-            if sender in md5_calc_targets:
-                DFile = instance.path
-                DFile.seek(0)
-                instance.md5 = md5.new(DFile.read()).hexdigest()
+            md5_calc_targets = []
+            def md5_calc(sender, instance, *args, **kwargs):
+                if sender in md5_calc_targets:
+                    DFile = instance.path
+                    DFile.seek(0)
+                    instance.md5 = md5.new(DFile.read()).hexdigest()
+            pre_save.connect(md5_calc)
         
 class Asset (models.Model):  # AUTOMATICALLY GENERATED
     """NO COMMENT SUPPLIED
@@ -114,7 +115,7 @@ class Bounds (models.Model):  # AUTOMATICALLY GENERATED
     # bounding box
     asset = models.ForeignKey("Asset", db_column="asset", help_text='asset')
     # asset
-    srid = models.IntegerField(help_text='Spatial Reference ID')
+    srid = models.IntegerField(blank=True, null=True, help_text='Spatial Reference ID')
     # Spatial Reference ID
     minx = models.FloatField(help_text='minx')
     # minx
@@ -124,15 +125,27 @@ class Bounds (models.Model):  # AUTOMATICALLY GENERATED
     # miny
     maxy = models.FloatField(help_text='maxy')
     # maxy
+    cellsx = models.IntegerField(blank=True, null=True, help_text='Raster cells in x axis')
+    # Raster cells in x axis
+    cellsy = models.IntegerField(blank=True, null=True, help_text='Raster cells in y axis')
+    # Raster cells in y axis
+    sizex = models.FloatField(blank=True, null=True, help_text='Raster cell x size')
+    # Raster cell x size
+    sizey = models.FloatField(blank=True, null=True, help_text='Raster cell y size')
+    # Raster cell y size
 
 
 Bounds.dml_attr = {'schema_name': 'GIS Asset index database', 'dj_description': 'NO COMMENT SUPPLIED'}
 
 dml_dj_set_attr(Bounds, "maxx", {'units': '', 'dj_css_class': 'FloatField', 'dj_description': 'maxx'})
 dml_dj_set_attr(Bounds, "maxy", {'units': '', 'dj_css_class': 'FloatField', 'dj_description': 'maxy'})
+dml_dj_set_attr(Bounds, "sizex", {'units': '', 'dj_css_class': 'FloatField', 'dj_description': 'Raster cell x size'})
 dml_dj_set_attr(Bounds, "bounds", {'units': '', 'dj_css_class': 'AutoField', 'dj_description': 'bounding box'})
+dml_dj_set_attr(Bounds, "sizey", {'units': '', 'dj_css_class': 'FloatField', 'dj_description': 'Raster cell y size'})
 dml_dj_set_attr(Bounds, "minx", {'units': '', 'dj_css_class': 'FloatField', 'dj_description': 'minx'})
 dml_dj_set_attr(Bounds, "miny", {'units': '', 'dj_css_class': 'FloatField', 'dj_description': 'miny'})
+dml_dj_set_attr(Bounds, "cellsy", {'units': '', 'dj_css_class': 'IntegerField', 'dj_description': 'Raster cells in y axis'})
+dml_dj_set_attr(Bounds, "cellsx", {'units': '', 'dj_css_class': 'IntegerField', 'dj_description': 'Raster cells in x axis'})
 dml_dj_set_attr(Bounds, "asset", {'units': '', 'dj_css_class': 'ForeignKey', 'dj_description': 'asset'})
 dml_dj_set_attr(Bounds, "srid", {'units': '', 'dj_css_class': 'IntegerField', 'dj_description': 'Spatial Reference ID'})
 

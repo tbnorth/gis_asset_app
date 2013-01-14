@@ -1,4 +1,16 @@
-"""Load data to gis_asset.models from gisspider"""
+"""Load data to gis_asset.models from gisspider
+
+To update passwords
+set search_path to nrgisl;
+\set oldpass '''Kelsie1234'''
+\set newpass '''0PetNames'''
+
+update drive 
+   set "user" = regexp_replace("user", :oldpass, :newpass)
+ where "user" ~ :oldpass
+;
+
+"""
 
 import gispider
 from gis_asset.models import *
@@ -6,6 +18,9 @@ from gis_asset.models import *
 import os
 import glob
 from datetime import datetime, date
+
+import socket
+import ping
 def cull_dupes():
     """find repeated path_txt values and delete the corresponding
     assets, leaving only the asset with the highest pk"""
@@ -56,6 +71,23 @@ def mount_drive(drive):
     
     host = "%s.nrri.umn.edu" % drive.machine
     
+    try:
+        dns_ip = socket.gethostbyname(host)
+    except socket.gaierror:
+        dns_ip = None
+        
+    if dns_ip:
+        p = ping.Ping(dns_ip)
+        p.run(1)
+        if p.receive_count != 1:
+            print "Could not ping host, will try stored IP if available"
+            if drive.ip:
+                host = drive.ip
+    else:
+        print "Host lookup failed, will try stored IP if available"
+        if drive.ip:
+            host = drive.ip
+        
     user, password = drive.user, None
     if ':' in user:
         user, password = user.split(':')
@@ -92,12 +124,18 @@ def scan_drive(pk):
     vis_path = "/%s/%s" % (drive.machine, drive.share)
     
     try:
-        for i in gispider.search_path(mount_path,
-            use_gdal=False, use_dir=False, extensions=['.dbf']):
+        for i in gispider.search_path(
+            mount_path,
+            use_gdal_on=('dir', 'file'), # 'dir',
+            use_ogr_on=('file',), # 'file',
+            ogr_extensions=['.dbf', '.shp', '.kml', '.gpx', ],
+            ):
                 
-            assert i['path'].lower().endswith('.dbf')
+            # assert i['path'].lower().endswith('.dbf')
+            if i['path'].lower().endswith('.shp'):
+                continue
             
-            name = i['layer'].lower()
+            name = i['name'].lower()
 
             p = i['path'].replace(mount_path, vis_path)
             
@@ -105,7 +143,10 @@ def scan_drive(pk):
                 print name, 'already'
                 continue
             
-            table_info = gispider.OgrFinder.get_table_info(i['path'])
+            if 'OGR' in i['find_type']:
+                table_info = gispider.OgrFinder.get_table_info(i['path'])
+            else:
+                table_info = gispider.GdalFinder.get_table_info(i['path'])
         
             asset = Asset()
             asset.name = name
@@ -139,6 +180,14 @@ def scan_drive(pk):
                     # print 'attrib.', attr.name
                 except UnicodeDecodeError:
                     pass  # ignore weird attribute names
+                    
+            if 'GDAL' in i['find_type']:
+                bounds = Bounds()
+                for attr in ('srid', 'minx', 'maxx', 'miny', 'maxy', 'cellsx', 'cellsy',
+                    'sizex', 'sizey'):
+                    setattr(bounds, attr, i[attr])
+                bounds.asset = asset
+                bounds.save()
             
             print asset.name, 'created'
             

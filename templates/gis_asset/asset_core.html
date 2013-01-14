@@ -14,6 +14,17 @@ Attributes:</th><td>{{asset.attribute_set.count}}</td></tr>
 {% for i in asset.geom_type.all %}
 <tr><th>Geom. type:</th><td>{{i.name}}</td></tr>
 {% endfor %}
+{% for i in asset.bounds_set.all %}
+<tr><th>Bounds N:</th><td>{{i.maxy}}</td></tr>
+<tr><th>Bounds S:</th><td>{{i.miny}}</td></tr>
+<tr><th>Bounds E:</th><td>{{i.maxx}}</td></tr>
+<tr><th>Bounds W:</th><td>{{i.minx}}</td></tr>
+{% if i.cellsx %}
+<tr><th>Rows:</th><td>{{i.cellsy}}</td></tr>
+<tr><th>Columns:</th><td>{{i.cellsx}}</td></tr>
+<tr><th>Cell size:</th><td>{{i.sizex}} x {{i.sizey}}</td></tr>
+{% endif %}
+{% endfor %}
 {% for i in asset.path_set.all %}
 <tr><th>Path:</th><td>{{i.path_txt}}</td></tr>
 {% endfor %}

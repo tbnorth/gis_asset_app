@@ -70,7 +70,9 @@ class SearchForm(forms.Form):
         choices=(('-modified','date'), ('path__path_txt','path')))
 def check_origin(request):
     
-    if not '131.212.123' in request.META.get('REMOTE_ADDR', ''):
+    if (not '131.212.123' in request.META.get('REMOTE_ADDR', '') and
+        not 'DEBUG' in os.environ
+       ):
         raise Http404
 def search(request):
     
