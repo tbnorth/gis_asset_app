@@ -147,6 +147,9 @@ def scan_drive(pk):
                 table_info = gispider.OgrFinder.get_table_info(i['path'])
             else:
                 table_info = gispider.GdalFinder.get_table_info(i['path'])
+                
+            if 'records' not in table_info:
+                continue
         
             asset = Asset()
             asset.name = name
@@ -185,7 +188,13 @@ def scan_drive(pk):
                 bounds = Bounds()
                 for attr in ('srid', 'minx', 'maxx', 'miny', 'maxy', 'cellsx', 'cellsy',
                     'sizex', 'sizey'):
-                    setattr(bounds, attr, i[attr])
+                    if attr == 'srid':
+                        setattr(bounds, attr, i[attr])
+                    else:
+                        # postgresql_psycopg2 will choke on 0.00<180 more 0s>008931279, so float()
+                        # setattr(bounds, attr, float(i[attr]))
+                        # seems the problem is the size of the exponent, not the conversion, so
+                        setattr(bounds, attr, round(float(i[attr]), 12))
                 bounds.asset = asset
                 bounds.save()
             
