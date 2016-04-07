@@ -65,6 +65,9 @@ class SearchForm(forms.Form):
     use_regex = forms.BooleanField(required=False,
         help_text = 'Interpret search strings and case insensitive regular expressions')      
     
+    negate = forms.BooleanField(required=False,
+        help_text = "Select items which don't match the search criteria")      
+    
     sort_by = forms.ChoiceField(required=True, initial='modified',
         help_text = 'Show results (when &lt;= 100) by date/path',
         choices=(('-modified','date'), ('path__path_txt','path')))
