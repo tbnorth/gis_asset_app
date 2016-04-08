@@ -3,7 +3,7 @@
 {% block content %}
 
   <p>{{total_assets}} assets, {{selected_count}} selected,
-  from <a href="{% url gis_asset.views.drives %}">these drives</a>.</p>
+  from <a href="{% url 'drives' %}">these drives</a>.</p>
   
   {% if filters %}<p>Filtered by<ul>
   {% for i in filters %}<li>{{i}}</li>{% endfor %}
@@ -31,11 +31,11 @@
   </p>
   </div>
   
-  <form action='{% url gis_asset.views.search %}' method='post'>
+  <form action='{% url "search" %}' method='post'>
   {% csrf_token %}
   <table class='left_head'>{{form.as_table}}</table>
   <input type='submit'/>
-  <button onclick="window.location='{% url gis_asset.views.search %}';"
+  <button onclick="window.location='{% url "search" %}';"
   type='button'>Reset</button>
   <button type='button' id='help_toggle'>Toggle help</button>
   </form>
@@ -44,7 +44,7 @@
   <h2>Showing only first {{selected|length}} records</h2>
   {% endif %}
   {% for i in selected %}
-  <div><a class='asset_info' href='{% url gis_asset.views.asset i.0 %}'><img src='{{STATIC_URL}}gis_asset/img/info.gif' title='More information' alt='Information icon'/></a>
+  <div><a class='asset_info' href='{% url "asset" i.0 %}'><img src='{{STATIC_URL}}gis_asset/img/info.gif' title='More information' alt='Information icon'/></a>
   <span class='asset_modified'>{{i.3|date:"d.M.y"}}</span>
   <a href='{{i.1}}'>{{i.2}}</a></div>
   {% endfor %}

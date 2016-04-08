@@ -1,23 +1,27 @@
 # Create your views here.
 from django.template import RequestContext
 from django.http import HttpResponse, HttpResponseForbidden, HttpResponseRedirect
-from django.shortcuts import render_to_response
+from django.shortcuts import render, render_to_response
 from django.core.urlresolvers import reverse
 from django import forms
 from django.db.models import Q
 from django.http import Http404
+from django.db.utils import OperationalError
 
 import json
 
 from models import *
 
 format_list = [('', '(all)')]
-format_list.extend([(i[0],i[0]) 
-    for i in Format.objects.values_list('name')])
-
 geom_type_list = [('', '(all)')]
-geom_type_list.extend([(i[0],i[0]) 
-    for i in Geom_type.objects.values_list('name')])
+try:
+    format_list.extend([(i[0],i[0]) 
+        for i in Format.objects.values_list('name')])
+    geom_type_list.extend([(i[0],i[0]) 
+        for i in Geom_type.objects.values_list('name')])
+except OperationalError:
+    pass  # happens when db doesn't exist yet, views.py should be
+          # importable without this side effect
 
 class SearchForm(forms.Form):
     """Options for query viewing"""
@@ -73,10 +77,13 @@ class SearchForm(forms.Form):
         choices=(('-modified','date'), ('path__path_txt','path')))
 def check_origin(request):
     
+    return
+    
     if (not '131.212.123' in request.META.get('REMOTE_ADDR', '') and
         not 'DEBUG' in os.environ
        ):
         raise Http404
+
 def search(request):
     
     check_origin(request)
@@ -196,14 +203,18 @@ def search(request):
         form = SearchForm()
         request.session['filters'] = set()
     
+    context = {   'total_assets': total_assets,
+        'selected_count': selected_count,
+        'form': form,
+        'selected': selected,
+        'filters': request.session['filters'],
+    }
+    
+    return render(request, "gis_asset/search.html", context)
+    
     return render_to_response(
         "gis_asset/search.html",
-        {   'total_assets': total_assets,
-            'selected_count': selected_count,
-            'form': form,
-            'selected': selected,
-            'filters': request.session['filters'],
-        },
+        context,
         RequestContext(request),
     )
 
