@@ -12,17 +12,20 @@ update drive
 
 """
 
-import gispider
-from gis_asset_app.models import *
-
+import glob
 import json
 import os
+import ping
+import socket
 import sys
-import glob
 from datetime import datetime, date
 
-import socket
-import ping
+sys.path.append('.')
+os.environ.setdefault("DJANGO_SETTINGS_MODULE", "gis_asset_ws.settings")
+import django
+django.setup()
+
+from gis_asset_app.models import *
 def cull_dupes():
     """find repeated path_txt values and delete the corresponding
     assets, leaving only the asset with the highest pk"""
@@ -170,10 +173,7 @@ def proc_record(drive, i):
 
     print p
 
-    if 'OGR' in i['find_type']:
-        table_info = gispider.OgrFinder.get_table_info(i['path'])
-    else:
-        table_info = gispider.GdalFinder.get_table_info(i['path'])
+    table_info = i['table_info']
 
     if 'records' not in table_info:
         return
@@ -226,3 +226,5 @@ def proc_record(drive, i):
         bounds.save()
 
     print asset.name, 'created'
+if __name__ == '__main__':
+    main()
