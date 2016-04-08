@@ -254,9 +254,9 @@ def autocomplete(request):
     
     check_origin(request)
     
-    context = request.REQUEST['context']
-    query = request.REQUEST['query']
-    all = request.REQUEST.get('all', False)
+    context = request.GET['context']
+    query = request.GET['query']
+    all = request.GET.get('all', False)
     
     model, field = {
         'attr_name': (Attribute, 'name'),
@@ -283,5 +283,5 @@ def autocomplete(request):
             'query': query,
             'suggestions': suggestions,
         }),
-        mimetype='text/plain'
+        content_type='text/plain'
     )
