@@ -1,4 +1,5 @@
 {% extends 'gis_asset/base.html' %}
+{% load static from staticfiles %}
 
 {% block content %}
 
@@ -44,7 +45,9 @@
   <h2>Showing only first {{selected|length}} records</h2>
   {% endif %}
   {% for i in selected %}
-  <div><a class='asset_info' href='{% url "asset" i.0 %}'><img src='{{STATIC_URL}}gis_asset/img/info.gif' title='More information' alt='Information icon'/></a>
+  <div><a class='asset_info' href='{% url "asset" i.0 %}'>
+  <img src='{% static "gis_asset/img/info.gif" %}' 
+    title='More information' alt='Information icon'/></a>
   <span class='asset_modified'>{{i.3|date:"d.M.y"}}</span>
   <a href='{{i.1}}'>{{i.2}}</a></div>
   {% endfor %}

@@ -220,7 +220,7 @@ def search(request):
 
 def translate_path(path):
     
-    path = path.strip('/').split('/')
+    path = path.replace('\\', '/').strip('/').split('/')
     
     path[0] += '.nrri.umn.edu'
     path.pop(0)  # discard machine
