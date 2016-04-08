@@ -102,7 +102,7 @@ def search(request):
             
             regex = d['use_regex']
             
-            filters = request.session['filters']
+            filters = set(request.session['filters'])
             request.session.modified = True
             if not d['search_within_selected']:
                 filters.clear()
@@ -201,13 +201,13 @@ def search(request):
     else:
         
         form = SearchForm()
-        request.session['filters'] = set()
+        request.session['filters'] = list(set())
     
     context = {   'total_assets': total_assets,
         'selected_count': selected_count,
         'form': form,
         'selected': selected,
-        'filters': request.session['filters'],
+        'filters': list(request.session['filters']),
     }
     
     return render(request, "gis_asset/search.html", context)
@@ -245,9 +245,11 @@ def drives(request):
     
     check_origin(request)
     
-    return HttpResponse('\n'.join([str(i) 
-        for i in Drive.objects.order_by('letter', 'machine', 'share')]),
-        mimetype="text/plain")
+    return HttpResponse(
+        '%d locations:\n\n' % Drive.objects.count() +
+        '\n'.join([str(i) for i in Drive.objects.order_by('letter', 'machine', 'share')]),
+        content_type="text/plain"
+    )
 def autocomplete(request):
     
     check_origin(request)

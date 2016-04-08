@@ -3,7 +3,7 @@
 {% block content %}
 
   <p>{{total_assets}} assets, {{selected_count}} selected,
-  from <a href="{% url 'drives' %}">these drives</a>.</p>
+  from <a href="{% url 'drives' %}">these locations</a>.</p>
   
   {% if filters %}<p>Filtered by<ul>
   {% for i in filters %}<li>{{i}}</li>{% endfor %}

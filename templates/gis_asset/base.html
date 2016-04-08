@@ -1,20 +1,21 @@
+{% load static from staticfiles %}
 <html>
   <head>
-  <link rel='stylesheet' href='{{STATIC_URL}}gis_asset/js/styles.css'/>
+  <link rel='stylesheet' href='{% static "gis_asset/js/styles.css" %}'/>
   <link rel='stylesheet' 
-   href='{{STATIC_URL}}gis_asset/js/css/ui-lightness/jquery-ui-1.8.16.custom.css'/>
-  <link rel='stylesheet' href='{{STATIC_URL}}gis_asset/css/gis_asset.css'/>
-  <script src='{{STATIC_URL}}gis_asset/js/jquery.min.js'
+   href='{% static "gis_asset/js/css/ui-lightness/jquery-ui-1.8.16.custom.css" %}'/>
+  <link rel='stylesheet' href='{% static "gis_asset/css/gis_asset.css" %}'/>
+  <script src='{% static "gis_asset/js/jquery.min.js" %}'
       type='text/javascript'></script>
-  <script src='{{STATIC_URL}}gis_asset/js/jquery-ui.custom.min.js'
+  <script src='{% static "gis_asset/js/jquery-ui.custom.min.js" %}'
       type='text/javascript'></script>
-  <script src='{{STATIC_URL}}gis_asset/js/jquery.autocomplete-min.js'
+  <script src='{% static "gis_asset/js/jquery.autocomplete-min.js" %}'
       type='text/javascript'></script>
   <script type='text/javascript'>
       /* global */ 
       GIS_ASSET_URL = "{% url 'autocomplete' %}/..";
   </script>
-  <script src='{{STATIC_URL}}gis_asset/js/gis_asset.js'
+  <script src='{% static "gis_asset/js/gis_asset.js" %}'
       type='text/javascript'></script>
       
   </head>
@@ -24,4 +25,3 @@
   
   </body>
 </html>
-
