@@ -278,10 +278,6 @@ def autocomplete(request):
     suggestions = [i[0] for i in suggestions.values_list(field)[:250]]
     suggestions.sort()  # django can't sort *and* slice
 
-    return HttpResponse(
-        json.dumps({
-            'query': query,
-            'suggestions': suggestions,
-        }),
-        content_type='text/plain'
-    )
+    ans = json.dumps(suggestions)
+    print context, query, ans
+    return HttpResponse(ans, content_type='text/plain')

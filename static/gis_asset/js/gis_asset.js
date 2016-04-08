@@ -9,19 +9,16 @@ function init() {
     var autos = ['attr_name', 'asset_name', 'path_txt'];
     for (var i in autos) {
         var name = autos[i];
-        var options = {
-            serviceUrl: GIS_ASSET_URL+'/autocomplete?all=y&context='+name,
-            delimiter: ',',
-            minChars: 2,
-            deferRequestBy: 200 //miliseconds
-        }
-
-        if (name == 'path_txt') {  // if you only wanted all in this
-            options.serviceUrl = (
-                GIS_ASSET_URL+'/autocomplete?all=y&context='+name);
-        }
-
-        jQ('.'+name).autocomplete(options)
+        source = function(name) { return function(query, response) {
+            jQ.ajax(
+              GIS_ASSET_URL+'/autocomplete?all=y&context='+name+'&query='+query.term,
+              {
+                dataType: 'json',
+                success: function(data) { response(data); }
+              });
+        }}(name);
+                
+        jQ('.'+name).autocomplete({source: source});
     }
     
     jQ('#id_min_date').datepicker();
