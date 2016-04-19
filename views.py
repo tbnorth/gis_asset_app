@@ -269,7 +269,7 @@ def autocomplete(request):
     else:
         suggestions = model.objects.filter(**{field+'__istartswith': query})
         
-    if request.session.get('selected', []):
+    if False and request.session.get('selected', []):
         suggestions = suggestions.filter(
             asset__in=request.session.get('selected', []))
             
