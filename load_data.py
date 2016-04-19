@@ -166,6 +166,8 @@ def proc_record(drive, i):
 
     vis_path = "/%s/%s" % (drive.machine, drive.share)
     p = i['path'] # .replace(mount_path, vis_path)
+    if i.get('layer'):
+        p += '#' + i['layer']
 
     if Path.objects.filter(path_txt=p).exists():
         print name, 'already'
