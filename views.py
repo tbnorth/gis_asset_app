@@ -14,7 +14,7 @@ from django.db.utils import OperationalError
 
 import json
 
-from models import *
+from .models import *
 
 format_list = [('', '(all)')]
 geom_type_list = [('', '(all)')]
@@ -345,5 +345,5 @@ def autocomplete(request):
     suggestions.sort()  # django can't sort *and* slice
 
     ans = json.dumps(suggestions)
-    print context, query, ans
+    print(context, query, ans)
     return HttpResponse(ans, content_type='text/plain')

@@ -15,13 +15,13 @@ update drive
 import glob
 import json
 import os
-import ping
+# import ping
 import socket
 import sys
 from datetime import datetime, date
 
 sys.path.append('.')
-os.environ.setdefault("DJANGO_SETTINGS_MODULE", "gis_asset_ws.settings")
+os.environ.setdefault("DJANGO_SETTINGS_MODULE", "gis_asset_web.settings")
 import django
 django.setup()
 
@@ -35,7 +35,7 @@ def cull_dupes():
 
     for multi in multi_path:
         assets = Asset.objects.filter(path__path_txt=multi['path_txt'])
-        print assets.count(), multi['path_txt']
+        print(assets.count(), multi['path_txt'])
         maxpk = max([i.pk for i in assets])
         for a in assets:
             if a.pk == maxpk:
@@ -85,11 +85,11 @@ def mount_drive(drive):
         p = ping.Ping(dns_ip)
         p.run(1)
         if p.receive_count != 1:
-            print "Could not ping host, will try stored IP if available"
+            print("Could not ping host, will try stored IP if available")
             if drive.ip:
                 host = drive.ip
     else:
-        print "Host lookup failed, will try stored IP if available"
+        print("Host lookup failed, will try stored IP if available")
         if drive.ip:
             host = drive.ip
 
@@ -116,7 +116,7 @@ def main():
         return load_file(int(sys.argv[1]), sys.argv[2])
 
     for i in Drive.objects.order_by('pk'):
-        print "%2d: %s" % (i.pk, i)
+        print("%2d: %s" % (i.pk, i))
 
     pk = raw_input("Which: ")
 
@@ -170,10 +170,10 @@ def proc_record(drive, i):
         p += '#' + i['layer']
 
     if Path.objects.filter(path_txt=p).exists():
-        print name, 'already'
+        print(name, 'already')
         return
 
-    print p
+    print(p)
 
     table_info = i['table_info']
 
@@ -202,14 +202,13 @@ def proc_record(drive, i):
     for a in table_info['attrib']:
         aname = a['name'].lower()
         try:
-            unicode(aname)  # check it's ok for DB
             attr_type, new = Attr_type.objects.get_or_create(name=a['type'].lower())
             attr = Attribute()
             attr.asset = asset
             attr.attr_type = attr_type
             attr.name = aname
             attr.save()
-            # print 'attrib.', attr.name
+            # print('attrib.', attr.name)
         except UnicodeDecodeError:
             pass  # ignore weird attribute names
 
@@ -227,6 +226,6 @@ def proc_record(drive, i):
         bounds.asset = asset
         bounds.save()
 
-    print asset.name, 'created'
+    print(asset.name, 'created')
 if __name__ == '__main__':
     main()

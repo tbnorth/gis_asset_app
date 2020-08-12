@@ -1,6 +1,6 @@
 # AUTOMATICALLY GENERATED MODELS, edit models_base.py instead
 
-from models_base import *
+from .models_base import *
 
 from django.forms import ValidationError
 
@@ -33,7 +33,7 @@ def dml_dj_set_attr(table, field, attr):
             fld.dml_attr = attr
             break
     else:
-        # print "Could not find field %s in %s"%(field,table)
+        # print("Could not find field %s in %s"%(field,table))
         pass
 
 
@@ -48,7 +48,7 @@ def dml_dj_add_field_validator(table, field, validator):
 
 def dml_dj_uploader(path):
     def f(self, orig, path=path):
-        print eval(path)
+        print(eval(path))
         return eval(path)
 
 
@@ -566,6 +566,6 @@ dml_dj_set_attr(
 
 # load customizations
 try:
-    import models_post
+    from .models_post import *
 except ImportError:
     pass
